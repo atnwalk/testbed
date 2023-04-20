@@ -3,7 +3,7 @@ source "${SCRIPT_DIR}"/env.bash
 
 cd ~
 if ! test -d AFLplusplus; then
-  git clone git@github.com:atnwalk/AFLplusplus.git
+  git clone https://github.com/atnwalk/AFLplusplus.git
 fi
 
 cd ~/AFLplusplus/

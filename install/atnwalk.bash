@@ -6,7 +6,7 @@ source "${SCRIPT_DIR}"/env.bash
 
 cd ~
 if ! test -d atnwalk; then
-  git clone git@github.com:atnwalk/atnwalk.git
+  git clone https://github.com/atnwalk/atnwalk.git
 fi
 
 if ! test -L atnwalk/grammars; then

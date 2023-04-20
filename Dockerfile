@@ -20,8 +20,8 @@ RUN dnf update -y && dnf install -y epel-release && crb enable && dnf install -y
   re2c
 
 # create the 'rocky' group and user
-RUN groupadd --gid 1005 rocky \
-  && useradd --uid 1004 --gid 1005 --home-dir /home/rocky --create-home --no-user-group --shell /bin/bash rocky \
+RUN groupadd --gid 9973 rocky \
+  && useradd --uid 9973 --gid 9973 --no-user-group --home-dir /home/rocky --create-home --shell /bin/bash rocky \
   # for the 'rocky and 'root' users, delete their passwords and lock the accounts
   && passwd --delete rocky \
   && passwd --lock rocky \
