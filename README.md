@@ -1,11 +1,30 @@
+# Testbed for Grammar-Based Fuzzers
 
-## General setup
+This repository provides scripts to test, run, benchmark, and analyze grammar-based fuzzers. 
+
+These fuzzers are:
+
+- [ATNwalk](https://github.com/atnwalk/atnwalk)
+- [Gramatron](https://github.com/HexHive/Gramatron)
+- [Nautilus](https://github.com/nautilus-fuzz/nautilus)
 
 We use a docker image which serves as a runtime environment.
 However, all fuzz targets and fuzzers are inside a home directory on the host volume.
 This home directory is then mounted as the `/home/rocky/` directory inside the container. 
 Fuzzing campaign results are stored at `/home/rocky/campaign`.
 Hence, if there is a need for a larger disk, please mount it to `/home/rocky/campaign` and make sure it has the correct user and group permissions.
+
+## Table of contents
+1. [Prerequisites](#prerequisites)
+1. [Setup user, directories, and permissions](#setup-user-directories-and-permissions)
+1. [Build and run the testbed Docker image](#build-and-run-the-testbed-docker-image)
+1. [Install fuzz targets and fuzzers](#installing-fuzz-targets-and-fuzzers)
+1. [Run a particular fuzzer](#run-a-particular-fuzzer)
+    1. [List of fuzz targets](#list-of-fuzz-targets)
+    1. [Run ATNwalk](#run-atnwalk)
+    1. [Run Gramatron](#run-gramatron)
+    1. [Run Nautilus](#run-nautilus)
+1. [Benchmark campaigns](#benchmark-campaigns)
 
 
 ## Prerequisites
@@ -16,7 +35,11 @@ Hence, if there is a need for a larger disk, please mount it to `/home/rocky/cam
 - Disable core dumps with `echo core >/proc/sys/kernel/core_pattern` as a privileged user when using AFL++ based fuzzers
 
 
-## Setup user, directories, permissions
+## Setup user, directories, and permissions
+
+**IMPORTANT:** 
+Before preparing the host system please check whether your system matches has the required prerequisites.
+Refer to the "[Prerequisites](#prerequisites)" section to check these.
 
 **Note:** You can freely choose the username, uid, and gid. However, the uid and gid should match the ones in the `Dockerfile` otherwise you need to setup ACLs accordingly (not explained).
 
@@ -43,10 +66,11 @@ Setup the ACLs accordingly
 # check the current ACL config
 sudo getfacl /home/rocky
 
-# allow your current group to rwx /home/rocky and subdirs (your user can create files)
+# allow your current group to rwx /home/rocky and subdirs so that your user can read, modify, and delete files
 sudo setfacl --recursive --modify default:group:$(id -g):rwx,group:$(id -g):rwx /home/rocky
 
-# allow the rocky user to write to files that are owned by anyone else (including files created by your current user)
+# allow the rocky user to read, modify, and delete files that are owned by anyone else,
+# which includes files created by your current user
 sudo setfacl --recursive --modify default:user:rocky:rwx,user:rocky:rwx /home/rocky
 
 # check that the command worked as expected by running
@@ -57,7 +81,13 @@ sudo getfacl /home/rocky
 ```
 
 
-## Create the testbed Docker image
+## Build and run the testbed Docker image
+
+**IMPORTANT:** 
+Creating and, in particular, running the testbed Docker image requires preparation of the host system.
+Refer to the "[Setup user, directories, and permissions](#setup-user-directories-and-permissions)" section on how to set it up.
+
+Build the testbed Docker image
 ```bash
 # clone the testbed repository
 cd /home/rocky/
@@ -70,8 +100,7 @@ cd testbed
 sudo docker build --tag testbed:"$(date +'%Y%m%d')" --file Dockerfile .
 ```
 
-
-## Run the testbed container
+Run the testbed container
 ```bash
 # note down your image name including its tag
 sudo docker images
@@ -90,8 +119,8 @@ ls -la ~/testbed
 ## Installing fuzz targets and fuzzers
 
 **IMPORTANT:** 
-Execute all following commands within the testbed container. 
-Refer to the "[Run the testbed container](#run-the-testbed-container)" on how to run it.
+Execute all subsequent commands within the testbed container. 
+Refer to the "[Build and run the testbed Docker image](#build-and-run-the-testbed-docker-image)" section on how to run it.
 
 Install everything
 ```bash
@@ -110,11 +139,11 @@ bash ~/testbed/install/atnwalk.bash
 ```
 
 
-## Start a particular fuzzer
+## Run a particular fuzzer
 
 **IMPORTANT:** 
-Execute all following commands within the testbed container. 
-Refer to the "[Run the testbed container](#run-the-testbed-container)" on how to run it.
+Execute all subsequent commands within the testbed container. 
+Refer to the "[Build and run the testbed Docker image](#build-and-run-the-testbed-docker-image)" section on how to run it.
 
 
 ### List of fuzz targets
@@ -241,7 +270,7 @@ taskset -c ${CPU_ID} ${HOME}/nautilus/target/release/fuzzer
 
 The commands below need to be run with your local user that has sudo privileges (*not* `rocky`).
 
-**IMPORTANT:** Before running any campaigns, make sure to disable core dumps for AFL++ otherwise your fuzzers may not start
+**IMPORTANT:** Before running any campaigns, make sure to disable core dumps for AFL++ otherwise your fuzzers may not start. For that, run the following commands
 ```bash
 # become your regular but privileged user
 exit
