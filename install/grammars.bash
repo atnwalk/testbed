@@ -3,6 +3,6 @@ source "${SCRIPT_DIR}"/env.bash
 
 cd ~
 if ! test -d grammars; then
-  git clone git@github.com:atnwalk/grammars.git
+  git clone https://github.com/atnwalk/grammars.git
 fi
 
