@@ -8,8 +8,8 @@ These fuzzers are:
 - [Gramatron](https://github.com/HexHive/Gramatron)
 - [Nautilus](https://github.com/nautilus-fuzz/nautilus)
 
-We use a docker image which serves as a runtime environment.
-However, all fuzz targets and fuzzers are inside a home directory on the host volume.
+We use a docker image as a runtime environment.
+However, all fuzz targets and fuzzers are contained within a home directory on the host volume.
 This home directory is then mounted as the `/home/rocky/` directory inside the container. 
 Fuzzing campaign results are stored at `/home/rocky/campaign`.
 Hence, if there is a need for a larger disk, please mount it to `/home/rocky/campaign` and make sure it has the correct user and group permissions.
@@ -30,16 +30,15 @@ Hence, if there is a need for a larger disk, please mount it to `/home/rocky/cam
 ## Prerequisites
 
 - Docker or podman must be installed (following examples are with docker)
-- A user and a group, both preferably called `rocky`, with the uid `9973` and the gid `9973` must be present on the host system (instructions below)
 - Privileges to become another user, starting docker/podman, and mounting volumes inside a container are required (e.g. via sudo) 
 - Disable core dumps with `echo core >/proc/sys/kernel/core_pattern` as a privileged user when using AFL++ based fuzzers
-
+- A user and a group, both preferably called `rocky`, with the uid `9973` and the gid `9973` must be present on the host system (instructions below)
 
 ## Setup user, directories, and permissions
 
-**IMPORTANT:** 
-Before preparing the host system please check whether your system matches has the required prerequisites.
-Refer to the "[Prerequisites](#prerequisites)" section to check these.
+**IMPORTANT:**
+Before preparing the host system please check whether your host system has the required prerequisites.
+Refer to the [Prerequisites](#prerequisites) section to check these.
 
 **Note:** You can freely choose the username, uid, and gid. However, the uid and gid should match the ones in the `Dockerfile` otherwise you need to setup ACLs accordingly (not explained).
 
@@ -66,11 +65,11 @@ Setup the ACLs accordingly
 # check the current ACL config
 sudo getfacl /home/rocky
 
-# allow your current group to rwx /home/rocky and subdirs so that your user can read, modify, and delete files
+# allow your current group to rwx files and dirs in /home/rocky and subdirs
 sudo setfacl --recursive --modify default:group:$(id -g):rwx,group:$(id -g):rwx /home/rocky
 
-# allow the rocky user to read, modify, and delete files that are owned by anyone else,
-# which includes files created by your current user
+# allow the rocky user to rwx files that are owned by anyone else,
+# which also includes files created by your current user
 sudo setfacl --recursive --modify default:user:rocky:rwx,user:rocky:rwx /home/rocky
 
 # check that the command worked as expected by running
@@ -94,8 +93,8 @@ cd /home/rocky/
 git clone https://github.com/atnwalk/testbed.git
 cd testbed
 
-# replace 'docker' with 'podman' on fedora and rocky linux 
-# (although podman can work without sudo, mounting the host volume 
+# replace 'docker' with 'podman' on fedora and rocky linux
+# (although podman can work without sudo, mounting the host volume
 #  inside the container with the correct permissions requires it)
 sudo docker build --tag testbed:"$(date +'%Y%m%d')" --file Dockerfile .
 ```
@@ -105,14 +104,22 @@ Run the testbed container
 # note down your image name including its tag
 sudo docker images
 
-# IMPORTANT: replace the DATE placeholder below with the noted image
+# IMPORTANT: replace the DATE placeholder below with the noted image tag
 
 # start the container and mount the /home/rocky directory inside it (:z is used to work with SELinux)
-sudo docker run --interactive --tty --rm --volume /home/rocky:/home/rocky:z testbed:DATE /bin/bash
+sudo docker run --rm --interactive --tty --volume /home/rocky:/home/rocky:z testbed:DATE /bin/bash
+
+# # short version, if preferred
+# sudo docker run --rm -it -v /home/rocky:/home/rocky:z testbed:DATE /bin/bash
 
 # inside the container, make sure that you can list files from the host, including the testbed
 ls -la
 ls -la ~/testbed
+
+# for convenience, you can setup the 'll' alias
+echo 'alias ll="ls -l --color=auto"' >> ~/.bashrc
+source ~/.bashrc
+ll
 ```
 
 
@@ -120,7 +127,7 @@ ls -la ~/testbed
 
 **IMPORTANT:** 
 Execute all subsequent commands within the testbed container. 
-Refer to the "[Build and run the testbed Docker image](#build-and-run-the-testbed-docker-image)" section on how to run it.
+Refer to the [Build and run the testbed Docker image](#build-and-run-the-testbed-docker-image) section on how to run it.
 
 Install everything
 ```bash
@@ -130,11 +137,12 @@ for s in ~/testbed/install/*; do bash "${s}"; done
 
 Install only a particular target or fuzzer
 ```bash
-# alternatively, you can choose what to install by simply selecting the script
-# this will take care of dependencies; e.g., to install JerryScript run
+# alternatively, you can choose what to install by selecting the script
+# this will take care of installing dependencies;
+# e.g., to install JerryScript run
 bash ~/testbed/install/jerry.bash
 
-# or install only ATNwalk and its dependencies
+# or install ATNwalk and its dependencies
 bash ~/testbed/install/atnwalk.bash
 ```
 
@@ -142,8 +150,8 @@ bash ~/testbed/install/atnwalk.bash
 ## Run a particular fuzzer
 
 **IMPORTANT:** 
-Execute all subsequent commands within the testbed container. 
-Refer to the "[Build and run the testbed Docker image](#build-and-run-the-testbed-docker-image)" section on how to run it.
+Execute all subsequent commands within the testbed container and you must install fuzzers and fuzz targets in advance.
+Refer to the [Build and run the testbed Docker image](#build-and-run-the-testbed-docker-image) and [Install fuzz targets and fuzzers](#installing-fuzz-targets-and-fuzzers) sections on how to do that.
 
 
 ### List of fuzz targets
@@ -189,11 +197,11 @@ nohup taskset -c ${CPU_ID} ${HOME}/atnwalk/build/javascript/bin/server 100 > ser
 
 # start AFL++ with ATNwalk
 AFL_SKIP_CPUFREQ=1 \
-AFL_DISABLE_TRIM=1 \
-AFL_CUSTOM_MUTATOR_ONLY=1 \
-AFL_CUSTOM_MUTATOR_LIBRARY=${HOME}/AFLplusplus/custom_mutators/atnwalk/atnwalk.so \
-AFL_POST_PROCESS_KEEP_ORIGINAL=1 \
-~/AFLplusplus/afl-fuzz -t 100 -i in/ -o out -b ${CPU_ID} -- ~/jerryscript/build/bin/jerry
+  AFL_DISABLE_TRIM=1 \
+  AFL_CUSTOM_MUTATOR_ONLY=1 \
+  AFL_CUSTOM_MUTATOR_LIBRARY=${HOME}/AFLplusplus/custom_mutators/atnwalk/atnwalk.so \
+  AFL_POST_PROCESS_KEEP_ORIGINAL=1 \
+  ~/AFLplusplus/afl-fuzz -t 100 -i in/ -o out -b ${CPU_ID} -- ~/jerryscript/build/bin/jerry
 
 # make sure to kill the ATNwalk server process after you're done
 kill "$(cat atnwalk.pid)"
@@ -309,9 +317,9 @@ sudo docker run --detach --rm \
   /bin/bash /home/rocky/testbed/start_campaign.bash
 ```
 
-You can view logs with `sudo docker logs [-f] CONTAINER` and replacing `CONTAINER` with the printed hash.
+You can view logs with `sudo docker logs [-f] CONTAINER` and use the printed hash.
 
-It should print something like this in the format: `fuzzer_name: target/campaign_number cpu_core`
+It should print something like this in the format: `fuzzer_name: target/campaign_number cpu_id`
 ```
 atnwalk: mruby/1 11
 atnwalk: sqlite3/1 12
@@ -338,7 +346,7 @@ Results, can be found inside the `/home/rocky/campaign/` directory.
 Access results preferably via an interactive docker container, so that programs can be executed with the found inputs
 ```bash
 # IMPORTANT: replace the DATE placeholder below with the noted image
-sudo docker run -it -v /home/rocky:/home/rocky testbed:DATE /bin/bash
+sudo docker run --rm -it -v /home/rocky:/home/rocky:z testbed:DATE /bin/bash
 ```
 
 To obtain AFL metrics in CSV format and decode all ATNwalk inputs, run the following commands:
@@ -361,7 +369,7 @@ exit
 sudo docker run --detach --rm \
   --ulimit core=0 --ulimit nofile=1000000:1000000 \
   --mount type=tmpfs,destination=/tmp,tmpfs-size=10737418240 \
-  --volume /home/rocky:/home/rocky fuzzing:20221116 \
+  --volume /home/rocky:/home/rocky:z testbed:DATE \
   /bin/bash /home/rocky/testbed/start_stats.bash
 ```
 
@@ -382,23 +390,23 @@ vim /home/rocky/testbed/coverage_nautilus.bash
 exit
 
 # run the stats script to obtain GCOV coverage metrics
-# IMPORTANT: set the CAMPAIGN_DATE to the timestamps you've obtained from the above commands
+# IMPORTANT: set the CAMPAIGN_DATE to the timestamps you've obtained from the above commands and DATE with the correct image tag
 sudo docker run --detach --rm \
   --ulimit core=0 --ulimit nofile=1000000:1000000 \
   --mount type=tmpfs,destination=/tmp,tmpfs-size=10737418240 \
-  --volume /home/rocky:/home/rocky fuzzing:20221116 \
+  --volume /home/rocky:/home/rocky:z testbed:DATE \
   /bin/bash /home/rocky/testbed/coverage_atnwalk.bash CAMPAIGN_DATE [CAMPAIGN_DATE ...]
 
 sudo docker run --detach --rm \
   --ulimit core=0 --ulimit nofile=1000000:1000000 \
   --mount type=tmpfs,destination=/tmp,tmpfs-size=10737418240 \
-  --volume /home/rocky:/home/rocky fuzzing:20221116 \
+  --volume /home/rocky:/home/rocky:z testbed:DATE \
   /bin/bash /home/rocky/testbed/coverage_gramatron.bash CAMPAIGN_DATE [CAMPAIGN_DATE ...]
 
 sudo docker run --detach --rm \
   --ulimit core=0 --ulimit nofile=1000000:1000000 \
   --mount type=tmpfs,destination=/tmp,tmpfs-size=10737418240 \
-  --volume /home/rocky:/home/rocky fuzzing:20221116 \
+  --volume /home/rocky:/home/rocky:z testbed:DATE \
   /bin/bash /home/rocky/testbed/coverage_nautilus.bash CAMPAIGN_DATE [CAMPAIGN_DATE ...]
 ```
 
