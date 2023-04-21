@@ -276,13 +276,10 @@ taskset -c ${CPU_ID} ${HOME}/nautilus/target/release/fuzzer
 
 ## Benchmark campaigns
 
-The commands below need to be run with your local user that has sudo privileges (*not* `rocky`).
-
 **IMPORTANT:** Before running any campaigns, make sure to disable core dumps for AFL++ otherwise your fuzzers may not start. For that, run the following commands
-```bash
-# become your regular but privileged user
-exit
 
+The commands below need to be run with your local user that has sudo privileges (*not* `rocky`).
+```bash
 # become root
 sudo -i
 
