@@ -176,7 +176,6 @@ Refer to the [Build and run the testbed Docker image](#build-and-run-the-testbed
 
 ### Run ATNwalk
 
-Example of running ATNwalk
 ```bash
 # create the required a random seed first
 mkdir -p ~/campaign/example/seeds
@@ -209,6 +208,7 @@ kill "$(cat atnwalk.pid)"
 
 
 ### Run Gramatron
+
 ```bash
 # create the required a random seed first or reuse the seed.decoded file if already worked with ATNwalk
 mkdir -p ~/campaign/example/seeds
@@ -235,6 +235,7 @@ AFL_SKIP_CPUFREQ=1 \
 
 
 ### Run Nautilus
+
 ```bash
 mkdir -p ~/campaign/example/nautilus/out
 cd ~/campaign/example/nautilus
