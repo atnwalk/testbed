@@ -150,8 +150,8 @@ bash ~/testbed/install/atnwalk.bash
 ## Run a particular fuzzer
 
 **IMPORTANT:** 
-Execute all subsequent commands within the testbed container and you must install fuzzers and fuzz targets in advance.
-Refer to the [Build and run the testbed Docker image](#build-and-run-the-testbed-docker-image) and [Install fuzz targets and fuzzers](#installing-fuzz-targets-and-fuzzers) sections on how to do that.
+Execute all subsequent commands within the testbed container and install fuzzers and fuzz targets in advance.
+Refer to the [Build and run the testbed Docker image](#build-and-run-the-testbed-docker-image) and [Install fuzz targets and fuzzers](#installing-fuzz-targets-and-fuzzers) sections on how to accomplish that.
 
 
 ### List of fuzz targets
