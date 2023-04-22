@@ -10,7 +10,7 @@ if ! fossil version; then
   tar -xzf "${FOSSIL_TAR}" -C ~/.fossil_install/fossil/bin
   rm -f "${FOSSIL_TAR}"
   echo 'if [[ "${PATH}" != *?(*:)"${HOME}"'"'"'/.fossil_install/fossil/bin'"'"'?(*:)* ]]; then export PATH="${HOME}/.fossil_install/fossil/bin:${PATH}"; fi' > ~/.fossil_install/env.bash
-  echo 'if [ -z ${USER+x} ]; then export USER="$(id -nu)"; fi' > ~/.fossil_install/env.bash
+  echo 'if [ -z ${USER+x} ]; then export USER="$(id -nu)"; fi' >> ~/.fossil_install/env.bash
   source ~/.fossil_install/env.bash
   if ! grep -F -q '. "${HOME}"/.fossil_install/env.bash' "${HOME}/.bashrc"; then
     echo '. "${HOME}"/.fossil_install/env.bash' >> ~/.bashrc
