@@ -50,7 +50,7 @@ sudo useradd --uid 9973 --gid 9973 --no-user-group --home-dir /home/rocky --crea
 
 # ubuntu and debian
 sudo addgroup --gid 9973 rocky
-sudo adduser --uid 9973 --gid 9973 --no-user-group --home /home/rocky --shell /bin/bash --disabled-password --gecos 'non-privileged user' rocky
+sudo adduser --uid 9973 --gid 9973 --home /home/rocky --shell /bin/bash --disabled-password --gecos 'non-privileged user' rocky
 ```
 
 Create the `/home/rocky/campaign` directory and set the owner to `rocky`
