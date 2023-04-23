@@ -110,7 +110,7 @@ sudo docker images
 sudo docker run --rm --interactive --tty --volume /home/rocky:/home/rocky:z testbed:DATE /bin/bash
 
 # # short version, if preferred
-# sudo docker run --rm -it -v /home/rocky:/home/rocky:z testbed:DATE /bin/bash
+# sudo docker run --rm -itv /home/rocky:/home/rocky:z testbed:DATE /bin/bash
 
 # inside the container, make sure that you can list files from the host, including the testbed
 ls -la
