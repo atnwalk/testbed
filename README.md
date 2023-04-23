@@ -344,7 +344,7 @@ Results, can be found inside the `/home/rocky/campaign/` directory.
 Access results preferably via an interactive docker container, so that programs can be executed with the found inputs
 ```bash
 # IMPORTANT: replace the DATE placeholder below with the noted image
-sudo docker run --rm -it -v /home/rocky:/home/rocky:z testbed:DATE /bin/bash
+sudo docker run --rm -itv /home/rocky:/home/rocky:z testbed:DATE /bin/bash
 ```
 
 To obtain AFL metrics in CSV format and decode all ATNwalk inputs, run the following commands:
